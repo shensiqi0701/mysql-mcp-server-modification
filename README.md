@@ -1,81 +1,44 @@
-<a href="https://glama.ai/mcp/servers/@dpflucas/mysql-mcp-server">
-  <img width="380" height="200" src="https://glama.ai/mcp/servers/@dpflucas/mysql-mcp-server/badge" alt="mysql-mcp-server MCP server" />
-</a>
+# MySQL MCP 服务器
 
-[![npm version](https://img.shields.io/npm/v/mysql-mcp-server?color=blue)](https://www.npmjs.com/package/mysql-mcp-server) [![smithery badge](https://smithery.ai/badge/@dpflucas/mysql-mcp-server)](https://smithery.ai/server/@dpflucas/mysql-mcp-server)
+此MCP服务器提供对MySQL数据库的只读访问。
 
+## 功能
+- 列出可用数据库
+- 列出数据库中的表
+- 描述表结构（包含字段备注）
+- 执行只读SQL查询
 
-# MySQL Database Access MCP Server
+## 安装
 
-This MCP server provides read-only access to MySQL databases. It allows you to:
-
-- List available databases
-- List tables in a database
-- Describe table schemas
-- Execute read-only SQL queries
-
-## Security Features
-
-- **Read-only access**: Only SELECT, SHOW, DESCRIBE, and EXPLAIN statements are allowed
-- **Query validation**: Prevents SQL injection and blocks any data modification attempts
-- **Query timeout**: Prevents long-running queries from consuming resources
-- **Row limit**: Prevents excessive data return
-
-## Installation
-
-### 1. Install using one of these methods:
-
-#### Install from NPM
+### 1. 从NPM安装
 
 ```bash
-# Install globally
-npm install -g mysql-mcp-server
+# 全局安装
+npm install -g @valuprosys/mysql-mcp-server
 
-# Or install locally in your project
-npm install mysql-mcp-server
+# 或在项目中本地安装
+npm install @valuprosys/mysql-mcp-server
 ```
 
-#### Build from Source
+### 2. 配置环境变量
 
-```bash
-# Clone the repository
-git clone https://github.com/dpflucas/mysql-mcp-server.git
-cd mysql-mcp-server
+服务器需要以下环境变量：
+- `MYSQL_HOST`: 数据库服务器地址
+- `MYSQL_PORT`: 数据库端口 (默认: 3306)
+- `MYSQL_USER`: 数据库用户名
+- `MYSQL_PASSWORD`: 数据库密码
+- `MYSQL_DATABASE`: 默认数据库名 (可选)
 
-# Install dependencies and build
-npm install
-npm run build
-```
+### 3. 添加到MCP配置
 
-#### Install via Smithery
+在MCP配置文件中添加以下配置：
 
-To install MySQL Database Access MCP Server for Claude AI automatically via [Smithery](https://smithery.ai/server/@dpflucas/mysql-mcp-server):
-
-```bash
-npx -y @smithery/cli install @dpflucas/mysql-mcp-server --client claude
-```
-
-### 2. Configure environment variables
-
-The server requires the following environment variables:
-
-- `MYSQL_HOST`: Database server hostname
-- `MYSQL_PORT`: Database server port (default: 3306)
-- `MYSQL_USER`: Database username
-- `MYSQL_PASSWORD`: Database password (optional, but recommended for secure connections)
-- `MYSQL_DATABASE`: Default database name (optional)
-
-### 3. Add to MCP settings
-
-Add the following configuration to your MCP settings file:
-
-If you installed via npm (Option 1):
 ```json
 {
   "mcpServers": {
     "mysql": {
       "command": "npx",
-      "args": ["mysql-mcp-server"],
+      "args": ["@valuprosys/mysql-mcp-server"],
       "env": {
         "MYSQL_HOST": "your-mysql-host",
         "MYSQL_PORT": "3306",
@@ -84,167 +47,43 @@ If you installed via npm (Option 1):
         "MYSQL_DATABASE": "your-default-database"
       },
       "disabled": false,
-      "autoApprove": []
+      "autoApprove": [
+        "list_databases",
+        "list_tables",
+        "describe_table",
+        "execute_query"
+      ]
     }
   }
 }
 ```
-
-If you built from source (Option 2):
-```json
-{
-  "mcpServers": {
-    "mysql": {
-      "command": "node",
-      "args": ["/path/to/mysql-mcp-server/build/index.js"],
-      "env": {
-        "MYSQL_HOST": "your-mysql-host",
-        "MYSQL_PORT": "3306",
-        "MYSQL_USER": "your-mysql-user",
-        "MYSQL_PASSWORD": "your-mysql-password",
-        "MYSQL_DATABASE": "your-default-database"
-      },
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
-```
-
-## Available Tools
+## 可用工具
 
 ### list_databases
 
-Lists all accessible databases on the MySQL server.
+列出MySQL服务器上所有可访问的数据库。
 
-**Parameters**: None
-
-**Example**:
-```json
-{
-  "server_name": "mysql",
-  "tool_name": "list_databases",
-  "arguments": {}
-}
-```
+**参数**: 无
 
 ### list_tables
 
-Lists all tables in a specified database.
+列出指定数据库中的所有表。
 
-**Parameters**:
-- `database` (optional): Database name (uses default if not specified)
-
-**Example**:
-```json
-{
-  "server_name": "mysql",
-  "tool_name": "list_tables",
-  "arguments": {
-    "database": "my_database"
-  }
-}
-```
+**参数**:
+- `database` (可选): 数据库名称 (未指定时使用默认数据库)
 
 ### describe_table
 
-Shows the schema for a specific table.
+显示指定表的详细结构。
 
-**Parameters**:
-- `database` (optional): Database name (uses default if not specified)
-- `table` (required): Table name
-
-**Example**:
-```json
-{
-  "server_name": "mysql",
-  "tool_name": "describe_table",
-  "arguments": {
-    "database": "my_database",
-    "table": "my_table"
-  }
-}
-```
+**参数**:
+- `database` (可选): 数据库名称 (未指定时使用默认数据库)
+- `table` (必填): 表名称
 
 ### execute_query
 
-Executes a read-only SQL query.
+执行只读SQL查询。
 
-**Parameters**:
-- `query` (required): SQL query (only SELECT, SHOW, DESCRIBE, and EXPLAIN statements are allowed)
-- `database` (optional): Database name (uses default if not specified)
-
-**Example**:
-```json
-{
-  "server_name": "mysql",
-  "tool_name": "execute_query",
-  "arguments": {
-    "database": "my_database",
-    "query": "SELECT * FROM my_table LIMIT 10"
-  }
-}
-```
-
-## Testing
-
-The server includes test scripts to verify functionality with your MySQL setup:
-
-### 1. Setup Test Database
-
-This script creates a test database, table, and sample data:
-
-```bash
-# Set your MySQL credentials as environment variables
-export MYSQL_HOST=localhost
-export MYSQL_PORT=3306
-export MYSQL_USER=your_username
-export MYSQL_PASSWORD=your_password
-
-# Run the setup script
-npm run test:setup
-```
-
-### 2. Test MCP Tools
-
-This script tests each of the MCP tools against the test database:
-
-```bash
-# Set your MySQL credentials as environment variables
-export MYSQL_HOST=localhost
-export MYSQL_PORT=3306
-export MYSQL_USER=your_username
-export MYSQL_PASSWORD=your_password
-export MYSQL_DATABASE=mcp_test_db
-
-# Run the tools test script
-npm run test:tools
-```
-
-### 3. Run All Tests
-
-To run both setup and tool tests:
-
-```bash
-# Set your MySQL credentials as environment variables
-export MYSQL_HOST=localhost
-export MYSQL_PORT=3306
-export MYSQL_USER=your_username
-export MYSQL_PASSWORD=your_password
-
-# Run all tests
-npm test
-```
-
-## Troubleshooting
-
-If you encounter issues:
-
-1. Check the server logs for error messages
-2. Verify your MySQL credentials and connection details
-3. Ensure your MySQL user has appropriate permissions
-4. Check that your query is read-only and properly formatted
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
+**参数**:
+- `query` (必填): SQL查询语句 (仅允许SELECT、SHOW、DESCRIBE和EXPLAIN语句)
+- `database` (可选): 数据库名称 (未指定时使用默认数据库)

@@ -97,7 +97,7 @@ async function main() {
     console.log('\n4. Testing execute_query tool...');
     const queryResult = await callTool(server, 'execute_query', {
       database: config.database,
-      query: 'SELECT * FROM users LIMIT 3'
+      query: 'SELECT * FROM app_fd_bw_zn_project LIMIT 3'
     });
     console.log('Result:', JSON.stringify(queryResult, null, 2));
     

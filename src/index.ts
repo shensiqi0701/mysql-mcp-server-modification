@@ -155,9 +155,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         
         const { rows } = await executeQuery(
           pool,
-          'SHOW FULL TABLES',
-          [],
-          database
+          `SELECT TABLE_NAME as table_name, 
+                  TABLE_TYPE as table_type, 
+                  TABLE_COMMENT as table_comment
+           FROM information_schema.TABLES
+           WHERE TABLE_SCHEMA = ?`,
+          [database || 'jwdb_ai_test']
         );
         
         return {
@@ -180,9 +183,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         
         const { rows } = await executeQuery(
           pool,
-          `DESCRIBE \`${table}\``,
-          [],
-          database
+          `SELECT 
+            COLUMN_NAME as Field,
+            COLUMN_TYPE as Type,
+            IS_NULLABLE as \`Null\`,
+            COLUMN_KEY as \`Key\`,
+            COLUMN_DEFAULT as \`Default\`,
+            EXTRA as Extra,
+            COLUMN_COMMENT as Comment
+          FROM information_schema.COLUMNS
+          WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`,
+          [database || 'jwdb_ai_test', table]
         );
         
         return {
